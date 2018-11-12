@@ -515,14 +515,18 @@ install_zsh(){
   read_input_text "Install zsh" $ZSH
   if [[ $OPTION == y ]]; then
     package_install "zsh"
-    read_input_text "Install oh-my-zsh" $OH_MY_ZSH
+    read_input_text "Install : zsh-theme-powerlevel9k awesome-terminal-fonts zsh-autosuggestions zsh-completions zsh-syntax-highlighting" $ZSH
     if [[ $OPTION == y ]]; then
-      if [[ -f /home/${username}/.zshrc ]]; then
-        read_input_text "Replace current .zshrc file"
-        if [[ $OPTION == y ]]; then
-          run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bkp"
-          run_as_user "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
-          run_as_user "$EDITOR /home/${username}/.zshrc"
+      package_install "zsh-theme-powerlevel9k awesome-terminal-fonts zsh-autosuggestions zsh-completions zsh-syntax-highlighting"
+      read_input_text "Install oh-my-zsh-git" $OH_MY_ZSH
+      if [[ $OPTION == y ]]; then
+        aur_package_install "oh-my-zsh-git" $AUR
+        if [[ -f /home/${username}/.zshrc ]]; then
+          read_input_text "Replace current .zshrc file"
+          if [[ $OPTION == y ]]; then
+            run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bkp"
+            run_as_user "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
+            run_as_user "$EDITOR /home/${username}/.zshrc"
         fi
       else
         run_as_user "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
@@ -539,7 +543,7 @@ install_samba(){
   print_info "Samba is a re-implementation of the SMB/CIFS networking protocol, it facilitates file and printer sharing among Linux and Windows systems as an alternative to NFS."
   read_input_text "Install Samba" $SAMBA
   if [[ $OPTION == y ]]; then
-    package_install "samba smbnetfs"
+    package_install "wget samba smbnetfs"
     [[ ! -f /etc/samba/smb.conf ]] && wget -q -O /etc/samba/smb.conf "https://git.samba.org/samba.git/?p=samba.git;a=blob_plain;f=examples/smb.conf.default;hb=HEAD"
     local CONFIG_SAMBA=`cat /etc/samba/smb.conf | grep usershare`
     if [[ -z $CONFIG_SAMBA ]]; then
@@ -692,7 +696,7 @@ install_video_cards(){
       package_install "nvidia-dkms nvidia-utils libglvnd"
       echo "Do not forget to make a mkinitcpio every time you updated the nvidia driver!"
     else
-      package_install "nvidia nvidia-utils libglvnd"
+      package_install "nvidia nvidia-utils libglvnd opencl-nvidia lib32-opencl-nvidia nvidia-settings libxnvctrl lib32-mesa-vdpau mesa-vdpau lib32-mesa mesa-demos"
     fi
     [[ ${ARCHI} == x86_64 ]] && pacman -S --needed lib32-nvidia-utils
     replace_line '*options nouveau modeset=1' '#options nouveau modeset=1' /etc/modprobe.d/modprobe.conf
@@ -779,6 +783,7 @@ install_additional_firmwares(){
       echo "11) $(menu_item "libmtp") [Android Devices]"
       echo "12) $(menu_item "libraw1394") [IEEE1394 Driver]"
       echo "13) $(menu_item "wd719x-firmware") $AUR"
+      echo "14) $(menu_item "rtl8812au-dkms-git") $AUR"
       echo ""
       echo " d) DONE"
       echo ""
@@ -826,6 +831,9 @@ install_additional_firmwares(){
           13)
             aur_package_install "wd719x-firmware"
             ;;
+          14)
+            aur_package_install "rtl8812au-dkms-git"
+            ;;
           "d")
             break
             ;;
@@ -847,8 +855,9 @@ install_desktop_environment(){
     do
       print_title "GNOME ICONS"
       echo " 1) $(menu_item "numix-icon-theme-git") $AUR"
-      echo " 2) $(menu_item "papirus-icon-theme-git")"
-      echo ""
+      echo " 2) $(menu_item "papirus-icon-theme-git") $AUR"
+      echo " 3) $(menu_item "papirus-icon-theme")
+      echo " 4) $(menu_item "la-capitaine-icon-theme-git") $AUR
       echo " b) BACK"
       echo ""
       ICONS_THEMES+=" b"
@@ -859,7 +868,13 @@ install_desktop_environment(){
             aur_package_install "numix-icon-theme-git numix-circle-icon-theme-git"
             ;;
           2)
-            package_install "papirus-icon-theme-git"
+            aur_package_install "papirus-icon-theme-git"
+            ;;
+          3)
+            package_install "papirus-icon-theme"
+            ;;
+          4)
+            aur_package_install "la-capitaine-icon-theme-git"
             ;;
           "b")
             break
@@ -1460,13 +1475,14 @@ install_accessories_apps(){
     echo " 1) $(menu_item "albert")"
     echo " 2) $(menu_item "catfish")"
     echo " 3) $(menu_item "conky-lua") $AUR"
-    echo " 4) $(menu_item "enpass-bin") $AUR"
-    echo " 5) $(menu_item "keepass")"
-    echo " 6) $(menu_item "pamac-aur" "Pamac") $AUR"
-    echo " 7) $(menu_item "shutter hotshots" "$([[ ${KDE} -eq 1 ]] && echo "Hotshots" || echo "Shutter";)")"
-    echo " 8) $(menu_item "synapse")"
-    echo " 9) $(menu_item "terminator")"
-    echo "10) $(menu_item "tilix-bin") $AUR"
+    echo " 4) $(menu_item "conky-lua-nv) $AUR"
+    echo " 5) $(menu_item "enpass-bin") $AUR"
+    echo " 6) $(menu_item "keepass")"
+    echo " 7) $(menu_item "pamac-aur" "Pamac") $AUR"
+    echo " 8) $(menu_item "shutter hotshots" "$([[ ${KDE} -eq 1 ]] && echo "Hotshots" || echo "Shutter";)")"
+    echo " 9) $(menu_item "synapse")"
+    echo " 10) $(menu_item "terminator")"
+    echo "11) $(menu_item "tilix")"
     echo ""
     echo " b) BACK"
     echo ""
@@ -1486,29 +1502,34 @@ install_accessories_apps(){
           sensors-detect --auto
           ;;
         4)
-          aur_package_install "enpass-bin"
+          aur_package_install "conky-lua-nv"
+          package_install "lm_sensors"
+          sensors-detect --auto
           ;;
         5)
-          package_install "keepass"
+          aur_package_install "enpass-bin"
           ;;
         6)
-          aur_package_install "pamac-aur"
+          package_install "keepass"
           ;;
         7)
+          aur_package_install "pamac-aur"
+          ;;
+        8)
           if [[ ${KDE} -eq 1 ]]; then
             aur_package_install "hotshots"
           else
             aur_package_install "shutter"
           fi
           ;;
-        8)
+        9)
           package_install "synapse"
           ;;
-        9)
+        10)
           package_install "terminator"
           ;;
-        10)
-          aur_package_install "tilix-bin"
+        11)
+          package_install "tilix-bin"
           ;;
         "b")
           break
@@ -1670,6 +1691,7 @@ install_office_apps(){
     echo " 9) $(menu_item "tellico")"
     echo "10) $(menu_item "typora")"
     echo "11) $(menu_item "xmind")"
+    echo "12) $(menu_item "xmind-zen")"
     echo ""
     echo " b) BACK"
     echo ""
@@ -1722,8 +1744,10 @@ install_office_apps(){
           package_install "typora"
           ;;
         11)
-          package_install "xmind"
+          aur_package_install "xmind"
           ;;
+        12)
+          aur_package_install "xmind-zen"
         "b")
           break
           ;;
@@ -2789,6 +2813,7 @@ install_fonts(){
     echo " 8) $(menu_item "ttf-ms-fonts") $AUR"
     echo " 9) $(menu_item "wqy-microhei") (Chinese/Japanese/Korean Support)"
     echo "10) $(menu_item "noto-fonts-cjk") (Chinese/Japanese/Korean Support)"
+    echo "11) $(menu_item "ttf_roboto")
     echo ""
     echo " b) BACK"
     echo ""
@@ -2829,6 +2854,9 @@ install_fonts(){
           ;;
         10)
           package_install "noto-fonts-cjk"
+          ;;
+        11)
+          package_install "ttf-roboto"
           ;;
         "b")
           break
@@ -2935,6 +2963,11 @@ install_extra(){
   do
     print_title "EXTRA"
     echo " 1) $(menu_item "profile-sync-daemon") $AUR"
+    echo " 2) $(menu_item "GTK Engines")
+    echo " 3) $(menu_item "Complete Appmenu")
+    echo " 4) $(menu_item "Wine Staging & Libs")
+    echo " 5) $(menu_item "Plasma Applets")
+    echo " 6) $(menu_item "System")
     echo ""
     echo " b) BACK"
     echo ""
@@ -2947,6 +2980,31 @@ install_extra(){
           run_as_user "psd"
           run_as_user "$EDITOR /home/${username}/.config/psd/psd.conf"
           run_as_user "systemctl --user enable psd.service"
+          ;;
+        2)
+          package_install "gtk-engine-murrine gtk-engines"
+          ;;
+        3)
+          package_install "libdbusmenu-glib libdbusmenu-gtk2 libdbusmenu-gtk3 appmenu-gtk-module"
+          ;;
+        4)
+          package_install "wine-staging winetricks wine-mono wine_gecko lib32-alsa-lib lib32-alsa-plugins lib32-libpulse lib32-openal lib32-libxml2 lib32-mpg123 lib32-lcms2 lib32-giflib lib32-libpng lib32-gnutls lib32-gdk-pixbuf2 vulkan-icd-loader lib32-vulkan-icd-loader"
+          ;;
+        5)
+          if
+          aur_package_install "nomad-firewall-git plasma5-applets-eventcalendar systemd-kcm" $AUR
+          // Question what to install .
+          ;;
+        6)
+          if
+          package_install "mysql php-apache apache python wget ruby php xdebug composer nodejs npm git jre8-openjdk jdk8-openjdk"
+          ;;
+        7)
+          if
+          package_install "archlinux-keyring cpupower acpi acpi_call acpid ccache intel-ucode amd-ucode"
+          // sudo systemctl enable cpupower acpid && sudo modprobe acpi acpi_call
+          // ccache : /etc/makepkg.conf -> uncomment !ccache
+          // Question what to install intel || amd
           ;;
         "b")
           break
