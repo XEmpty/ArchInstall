@@ -515,19 +515,19 @@ install_zsh(){
   read_input_text "Install zsh" $ZSH
   if [[ $OPTION == y ]]; then
     package_install "zsh"
-    read_input_text "Install : zsh-theme-powerlevel9k awesome-terminal-fonts zsh-autosuggestions zsh-completions zsh-syntax-highlighting" $ZSH
+    read_input_text "Install : zsh-theme-powerlevel9k awesome-terminal-fonts zsh-autosuggestions zsh-completions zsh-syntax-highlighting" $ZSHEXTRA
     if [[ $OPTION == y ]]; then
       package_install "zsh-theme-powerlevel9k awesome-terminal-fonts zsh-autosuggestions zsh-completions zsh-syntax-highlighting"
       read_input_text "Install oh-my-zsh-git" $OH_MY_ZSH
-      if [[ $OPTION == y ]]; then
-        aur_package_install "oh-my-zsh-git" $AUR
-        if [[ -f /home/${username}/.zshrc ]]; then
-          read_input_text "Replace current .zshrc file"
-          if [[ $OPTION == y ]]; then
-            run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bkp"
-            run_as_user "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
-            run_as_user "$EDITOR /home/${username}/.zshrc"
-        fi
+    if [[ $OPTION == y ]]; then
+      aur_package_install "oh-my-zsh-git" $AUR
+      if [[ -f /home/${username}/.zshrc ]]; then
+        read_input_text "Replace current .zshrc file"
+        if [[ $OPTION == y ]]; then
+          run_as_user "mv /home/${username}/.zshrc /home/${username}/.zshrc.bkp"
+          run_as_user "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
+          run_as_user "$EDITOR /home/${username}/.zshrc"
+      fi
       else
         run_as_user "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
         run_as_user "$EDITOR /home/${username}/.zshrc"
@@ -2966,8 +2966,9 @@ install_extra(){
     echo " 2) $(menu_item "GTK Engines")
     echo " 3) $(menu_item "Complete Appmenu")
     echo " 4) $(menu_item "Wine Staging & Libs")
-    echo " 5) $(menu_item "Plasma Applets")
-    echo " 6) $(menu_item "System")
+    echo " 5) $(menu_item "Plasma Applets") $AUR"
+    echo " 6) $(menu_item "Web & Python & NPM & Basics")
+    echo " 7) $(menu_item "System")
     echo ""
     echo " b) BACK"
     echo ""
@@ -2991,20 +2992,60 @@ install_extra(){
           package_install "wine-staging winetricks wine-mono wine_gecko lib32-alsa-lib lib32-alsa-plugins lib32-libpulse lib32-openal lib32-libxml2 lib32-mpg123 lib32-lcms2 lib32-giflib lib32-libpng lib32-gnutls lib32-gdk-pixbuf2 vulkan-icd-loader lib32-vulkan-icd-loader"
           ;;
         5)
-          if
-          aur_package_install "nomad-firewall-git plasma5-applets-eventcalendar systemd-kcm" $AUR
-          // Question what to install .
+          read_input_text "plasma5-applets-eventcalendar" $nomad-firewall-git
+          if [[ $OPTION == y ]]; then
+            aur_package_install "nomad-firewall-git" $AUR
+            pause_function
+          fi
+            read_input_text "plasma5-applets-eventcalendar" $plasma5-applets-eventcalendar
+          if [[ $OPTION == y ]]; then
+            aur_package_install "plasma5-applets-eventcalendar" $AUR
+            pause_function
+          fi
+          read_input_text "systemd-kcm" $systemd-kcm
+          if [[ $OPTION == y ]]; then
+            aur_package_install "systemd-kcm" $AUR
+            pause_function
+          fi
           ;;
         6)
-          if
-          package_install "mysql php-apache apache python wget ruby php xdebug composer nodejs npm git jre8-openjdk jdk8-openjdk"
+          read_input_text "mysql php-apache apache php xdebug composer" $WEBPKG
+          if [[ $OPTION == y ]]; then
+            package_install "mysql php-apache apache php xdebug composer"
+            pause_function
+          fi
+          read_input_text "python" $PYTHONPKG
+          if [[ $OPTION == y ]]; then
+            package_install "python"
+            pause_function
+          fi
+          read_input_text "nodejs npm jre8-openjdk jdk8-openjdk" $NPMPKG
+          if [[ $OPTION == y ]]; then
+            package_install "nodejs npm jre8-openjdk jdk8-openjdk"
+            pause_function
+          fi
+          read_input_text "wget ruby git" $BASICSPKG
+          if [[ $OPTION == y ]]; then
+            package_install "wget ruby git"
+            pause_function
+          fi
           ;;
         7)
-          if
-          package_install "archlinux-keyring cpupower acpi acpi_call acpid ccache intel-ucode amd-ucode"
-          // sudo systemctl enable cpupower acpid && sudo modprobe acpi acpi_call
-          // ccache : /etc/makepkg.conf -> uncomment !ccache
-          // Question what to install intel || amd
+          print_info "Install UCODE for Intel & AMD"
+          read_input_text "intel-ucode" $I_UCODE
+          if [[ $OPTION == y ]]; then
+            package_install "intel-ucode"
+            pause_function
+          fi
+            read_input_text "amd-ucode" $A_UCODE
+          if [[ $OPTION == y ]]; then
+            package_install "amd-ucode"
+            pause_function
+          fi
+          package_install "archlinux-keyring cpupower acpi acpi_call acpid ccache"
+          systemctl cpupower acpid
+          modprobe acpi acpi_call
+          sed -i 's/!ccache/ccache/g' /etc/makepkg.conf
           ;;
         "b")
           break
