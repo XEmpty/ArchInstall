@@ -515,6 +515,8 @@ install_zsh(){
   read_input_text "Install zsh" $ZSH
   if [[ $OPTION == y ]]; then
     package_install "zsh"
+    read_input_text "Change bash to zsh? :"
+    chsh -l && chsh -s /bin/zsh
     read_input_text "Install : zsh-theme-powerlevel9k awesome-terminal-fonts zsh-autosuggestions zsh-completions zsh-syntax-highlighting" $ZSHEXTRA
     if [[ $OPTION == y ]]; then
       package_install "zsh-theme-powerlevel9k awesome-terminal-fonts zsh-autosuggestions zsh-completions zsh-syntax-highlighting"
@@ -856,8 +858,8 @@ install_desktop_environment(){
       print_title "GNOME ICONS"
       echo " 1) $(menu_item "numix-icon-theme-git") $AUR"
       echo " 2) $(menu_item "papirus-icon-theme-git") $AUR"
-      echo " 3) $(menu_item "papirus-icon-theme")
-      echo " 4) $(menu_item "la-capitaine-icon-theme-git") $AUR
+      echo " 3) $(menu_item "papirus-icon-theme")"
+      echo " 4) $(menu_item "la-capitaine-icon-theme-git") $AUR"
       echo " b) BACK"
       echo ""
       ICONS_THEMES+=" b"
@@ -2813,7 +2815,7 @@ install_fonts(){
     echo " 8) $(menu_item "ttf-ms-fonts") $AUR"
     echo " 9) $(menu_item "wqy-microhei") (Chinese/Japanese/Korean Support)"
     echo "10) $(menu_item "noto-fonts-cjk") (Chinese/Japanese/Korean Support)"
-    echo "11) $(menu_item "ttf_roboto")
+    echo "11) $(menu_item "ttf_roboto")"
     echo ""
     echo " b) BACK"
     echo ""
@@ -2963,12 +2965,12 @@ install_extra(){
   do
     print_title "EXTRA"
     echo " 1) $(menu_item "profile-sync-daemon") $AUR"
-    echo " 2) $(menu_item "GTK Engines")
-    echo " 3) $(menu_item "Complete Appmenu")
-    echo " 4) $(menu_item "Wine Staging & Libs")
+    echo " 2) $(menu_item "GTK Engines")"
+    echo " 3) $(menu_item "Appmenu for Plasma")"
+    echo " 4) $(menu_item "Wine Staging & Libs")"
     echo " 5) $(menu_item "Plasma Applets") $AUR"
-    echo " 6) $(menu_item "Web & Python & NPM & Basics")
-    echo " 7) $(menu_item "System")
+    echo " 6) $(menu_item "Web & Python & NPM & Basics")"
+    echo " 7) $(menu_item "System")"
     echo ""
     echo " b) BACK"
     echo ""
