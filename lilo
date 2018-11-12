@@ -186,10 +186,9 @@ select_user(){
         1)
           package_install "git"
           package_install "colordiff"
-          git clone https://github.com/helmuthdu/dotfiles
-          cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc dotfiles/.yaourtrc ~/
-          cp dotfiles/.bashrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc dotfiles/.yaourtrc /home/${username}/
-          rm -fr dotfiles
+          cp dotfiles/.bashrc dotfiles/.zshrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc ~/
+          cp dotfiles/.bashrc dotfiles/.zshrc dotfiles/.dircolors dotfiles/.dircolors_256 dotfiles/.nanorc /home/${username}/
+          # rm -fr dotfiles # Keep Files for Some Updates.
           ;;
         2)
           cp /etc/skel/.bashrc /home/${username}
@@ -355,6 +354,7 @@ choose_aurhelper(){
           package_install "base-devel git go"
           pacman -D --asdeps go
           aui_download_packages "yay"
+          yay --editmenu --nodiffmenu --save # For edit .pkg source #
           if ! is_package_installed "yay" ; then
             echo "yay not installed. EXIT now"
             pause_function
@@ -1165,6 +1165,19 @@ install_desktop_environment(){
       print_info "KDE is an international free software community producing an integrated set of cross-platform applications designed to run on Linux, FreeBSD, Microsoft Windows, Solaris and Mac OS X systems. It is known for its Plasma Desktop, a desktop environment provided as the default working environment on many Linux distributions."
       package_install "plasma kf5 sddm"
       package_install "ark dolphin dolphin-plugins kio-extras kdeconnect quota-tools gwenview kipi-plugins kate kcalc konsole spectacle okular sweeper kwalletmanager"
+      print_info "Some Extra Packages for Plasma (ONLY QT5, COME FROME KDE)"
+      read_input_text "krita dragon juk ffmpegthumbs filelight kaccounts-integration kaccounts-providers kcharselect kdialog kfind kcolorchooser kdenetwork-filesharing krdc kdenlive frei0r-plugins kmail kompare korganizer krfb ksystemlog kwalletmanager okteta signon-kwallet-extension konversation yakuake akonadiconsole partitionmanager kjots zanshin redshift plasma5-applets-redshift-control krusader krename qbittorrent latte-dock screenfetch kcm-wacomtablet cryfs sshfs"
+      if [[ $OPTION == y ]]; then
+        package_install "krita dragon juk ffmpegthumbs filelight kaccounts-integration kaccounts-providers kcharselect kdialog kfind kcolorchooser kdenetwork-filesharing krdc kdenlive frei0r-plugins kmail kompare korganizer krfb ksystemlog kwalletmanager okteta signon-kwallet-extension konversation yakuake akonadiconsole partitionmanager kjots zanshin redshift plasma5-applets-redshift-control krusader krename qbittorrent latte-dock screenfetch kcm-wacomtablet cryfs sshfs"
+        pause_function
+      fi
+      print_info "Install Flatpak & add Flat Hub Repo"
+      read_input_text "flatpak"
+      if [[ $OPTION == y ]]; then
+        package_install flatpak
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+        pause_function
+      fi
       is_package_installed "cups" && package_install "print-manager"
       [[ $LOCALE != en_US ]] && package_install "kde-l10n-$LOCALE_KDE"
       # config xinitrc
@@ -1564,16 +1577,15 @@ install_development_apps(){
     echo "12) $(menu_item "qtcreator")"
     echo "13) $(menu_item "mysql-workbench" "MySQL Workbench") $AUR"
     echo "14) $(menu_item "jdk8-openjdk" "OpenJDK 8")"
-    echo "15) $(menu_item "jdk9-openjdk" "OpenJDK 9")"
-    echo "16) $(menu_item "jdk10-openjdk" "OpenJDK 10")"
-    echo "17) $(menu_item "jdk" "Oracle JDK") $AUR"
-    echo "18) $(menu_item "nodejs")"
-    echo "19) $(menu_item "visual-studio-code-bin" "Visual Studio Code") $AUR"
-    echo "20) $(menu_item "gitg")"
-    echo "21) $(menu_item "kdiff3")"
-    echo "22) $(menu_item "regexxer")"
-    echo "23) $(menu_item "postman-bin" "Postman") $AUR"
-    echo "24) $(menu_item "gitkraken" "Gitkraken") $AUR"
+    echo "15) $(menu_item "jdk10-openjdk" "OpenJDK 10")"
+    echo "16) $(menu_item "jdk" "Oracle JDK") $AUR"
+    echo "17) $(menu_item "nodejs")"
+    echo "18) $(menu_item "visual-studio-code-bin" "Visual Studio Code") $AUR"
+    echo "19) $(menu_item "gitg")"
+    echo "20) $(menu_item "kdiff3")"
+    echo "21) $(menu_item "regexxer")"
+    echo "22) $(menu_item "postman-bin" "Postman") $AUR"
+    echo "23) $(menu_item "gitkraken" "Gitkraken") $AUR"
     echo ""
     echo " b) BACK"
     echo ""
@@ -1632,37 +1644,33 @@ install_development_apps(){
           ;;
         15)
           package_remove "jdk"
-          package_install "jdk9-openjdk"
-          ;;
-        16)
-          package_remove "jdk"
           package_install "jdk10-openjdk"
           ;;
-        17)
+        16)
           package_remove "jre{7,8,9,10}-openjdk"
           package_remove "jdk{7,8,9,10}-openjdk"
           aur_package_install "jdk"
           ;;
-        18)
+        17)
           package_install "nodejs"
           ;;
-        19)
+        18)
           aur_package_install "visual-studio-code-bin"
           ;;
-        20)
+        19)
           aur_package_install "gitg"
           aur_package_install "qgit"
           ;;
-        21)
+        20)
           aur_package_install "kdiff3"
           ;;
-        22)
+        21)
           aur_package_install "regexxer"
           ;;
-        23)
+        22
           aur_package_install "postman-bin"
           ;;
-        24)
+        23)
           aur_package_install "gitkraken"
           ;;
         "b")
@@ -1782,7 +1790,7 @@ install_system_apps(){
     echo "13) $(menu_item "wine")"
     echo "14) $(menu_item "netdata")"
     echo "15) $(menu_item "nload")"
-    echo "16) $(menu_item "vmware-workstation12" "VMware Workstation 12") $AUR"
+    echo "16) $(menu_item "vmware-workstation" "VMware Workstation 15") $AUR"
     echo ""
     echo " b) BACK"
     echo ""
@@ -1862,7 +1870,9 @@ install_system_apps(){
           package_install "nload"
           ;;
         16)
-          aur_package_install "vmware-workstation12"
+          aur_package_install "vmware-workstation"
+          systemctl enable vmware-usbarbitrator.service vmware-networks.service vmware-hostd.service
+          modprobe -a vmw_vmci vmmon
           ;;
         "b")
           break
@@ -1892,6 +1902,7 @@ install_graphics_apps(){
     echo " 9) $(menu_item "shotwell")"
     echo "10) $(menu_item "simple-scan")"
     echo "11) $(menu_item "yacreader")"
+    echo "12) $(menu_item "gravit-designer-bin") $AUR"
     echo ""
     echo " b) BACK"
     echo ""
@@ -1932,6 +1943,9 @@ install_graphics_apps(){
         11)
           package_install "yacreader"
           ;;
+        12)
+          aur_package_install "gravit-designer-bin"
+          ;;
         "b")
           break
           ;;
@@ -1970,10 +1984,12 @@ install_internet_apps(){
             echo " 1) $(menu_item "google-chrome" "Chrome") $AUR"
             echo " 2) $(menu_item "chromium")"
             echo " 3) $(menu_item "firefox")"
-            echo " 4) $(menu_item "midori konqueror" "$([[ ${KDE} -eq 1 ]] && echo "Konqueror" || echo "Midori";)")"
-            echo " 5) $(menu_item "opera")"
-            echo " 6) $(menu_item "vivaldi") $AUR"
-            echo " 7) $(menu_item "tor browser") $AUR"
+            echo " 4) $(menu_item "falkon")"
+            echo " 5) $(menu_item "waterfox") $AUR"
+            echo " 6) $(menu_item "midori konqueror" "$([[ ${KDE} -eq 1 ]] && echo "Konqueror" || echo "Midori";)")"
+            echo " 7) $(menu_item "opera")"
+            echo " 8) $(menu_item "vivaldi") $AUR"
+            echo " 9) $(menu_item "tor browser") $AUR"
             echo ""
             echo " b) BACK"
             echo ""
@@ -1991,19 +2007,25 @@ install_internet_apps(){
                   package_install "firefox firefox-i18n-$LOCALE_FF"
                   ;;
                 4)
+                  package_install "falkon"
+                  ;;
+                5)
+                  aur_package_install "waterfox-bin"
+                  ;;  
+                6)
                   if [[ ${KDE} -eq 1 ]]; then
                     package_install "konqueror"
                   else
                     package_install "midori"
                   fi
                   ;;
-                5)
+                7)
                   package_install "opera"
                   ;;
-                6)
+                8)
                   aur_package_install "vivaldi"
                   ;;
-                7)
+                9)
                   aur_package_install "tor-browser"
                   ;;
                 "b")
@@ -2332,6 +2354,7 @@ install_audio_apps(){
             echo " 9) $(menu_item "spotify") $AUR"
             echo "10) $(menu_item "timidity++") $AUR"
             echo "11) $(menu_item "quodlibet")"
+            echo "12) $(menu_item "juk")"
             echo ""
             echo " b) BACK"
             echo ""
@@ -2373,6 +2396,9 @@ install_audio_apps(){
                 11)
                   package_install "quodlibet"
                   ;;
+                12)
+                  package_install "juk"
+                  ;;  
                 "b")
                   break
                   ;;
@@ -2481,6 +2507,7 @@ install_video_apps(){
             echo " 7) $(menu_item "popcorntime-ce") $AUR"
             echo " 8) $(menu_item "vlc")"
             echo " 9) $(menu_item "kodi")"
+            echo " 10) $(meu_item "dragon")"
             echo ""
             echo " b) BACK"
             echo ""
@@ -2516,6 +2543,9 @@ install_video_apps(){
                 9)
                   package_install "kodi"
                   add_user_to_group ${username} kodi
+                  ;;
+                10)
+                  package_install "dragon"
                   ;;
                 "b")
                   break
@@ -2959,6 +2989,37 @@ reconfigure_system(){
   timedatectl set-ntp true
 }
 #}}}
+#FIX ISSUSES {{{
+fix_issues(){
+  while true
+  do
+    print_title "FIX ISSUES"
+    echo " 1) $(menu_item "enp5s0 startup fix")"
+    echo " 2) $(menu_item "'No-Wait' dhcpcd waiting")"
+    echo ""
+    echo " b) BACK"
+    echo ""
+    FIX_ISSUES+=" b"
+    read_input_options "$FIX_ISSUES"
+    for OPT in ${OPTIONS[@]}; do
+      case "$OPT" in
+        1)
+        systemctl disable dhcpcd@enp5s0.service && sudo systemctl enable dhcpcd.service 
+        ;;
+        2)
+        mkdir /etc/systemd/system/dhcpcd@.service.d && cp no-wait.conf /etc/systemd/system/dhcpcd@.service.d/
+        ;;
+        "b")
+          break
+          ;;
+        *)
+          invalid_option
+          ;;
+      esac
+    done
+    source sharedfuncs_elihw
+  done
+  }
 #EXTRA {{{
 install_extra(){
   while true
@@ -2992,6 +3053,11 @@ install_extra(){
           ;;
         4)
           package_install "wine-staging winetricks wine-mono wine_gecko lib32-alsa-lib lib32-alsa-plugins lib32-libpulse lib32-openal lib32-libxml2 lib32-mpg123 lib32-lcms2 lib32-giflib lib32-libpng lib32-gnutls lib32-gdk-pixbuf2 vulkan-icd-loader lib32-vulkan-icd-loader"
+          read_input_text "dxvk-bin" $DXVKBIN
+          if [[ $OPTION == y ]]; then
+            aur_package_install "dxvk-bin" $AUR
+            pause_function
+          fi
           ;;
         5)
           read_input_text "plasma5-applets-eventcalendar" $nomad-firewall-git
@@ -3114,8 +3180,9 @@ do
   echo "13) $(mainmenu_item "${checklist[13]}" "Fonts")"
   echo "14) $(mainmenu_item "${checklist[14]}" "Internationalization")"
   echo "15) $(mainmenu_item "${checklist[15]}" "Extra")"
-  echo "16) $(mainmenu_item "${checklist[16]}" "Clean Orphan Packages")"
-  echo "17) $(mainmenu_item "${checklist[17]}" "Reconfigure System")"
+  echo "16) $(mainmenu_item "${checklist[16]}" "Fix Issues")"
+  echo "17) $(mainmenu_item "${checklist[17]}" "Clean Orphan Packages")"
+  echo "18) $(mainmenu_item "${checklist[18]}" "Reconfigure System")"
   echo ""
   echo " q) Quit"
   echo ""
@@ -3206,15 +3273,19 @@ do
         checklist[15]=1
         ;;
       16)
-        clean_orphan_packages
+        fix_issues
         checklist[16]=1
-        ;;
+        ;;        
       17)
+        clean_orphan_packages
+        checklist[17]=1
+        ;;
+      18)
         print_danger "\nWARNING: THIS OPTION WILL RECONFIGURE THINGS LIKE HOSTNAME, TIMEZONE, CLOCK..."
         read_input_text "Are you sure you want to continue?"
         [[ $OPTION != y ]] && continue
         reconfigure_system
-        checklist[17]=1
+        checklist[18]=1
         ;;
       "q")
         finish
