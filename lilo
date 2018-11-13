@@ -1544,7 +1544,7 @@ install_accessories_apps(){
           package_install "terminator"
           ;;
         11)
-          package_install "tilix-bin"
+          package_install "tilix"
           ;;
         "b")
           break

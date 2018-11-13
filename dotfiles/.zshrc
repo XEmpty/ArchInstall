@@ -5,7 +5,7 @@ export PATH="/usr/lib/ccache/bin/:$PATH"
 
 # QT5 Style For Gnome
 
-export QT_QPA_PLATFORMTHEME="qt5ct"
+#export QT_QPA_PLATFORMTHEME="qt5ct"
 
 # Export GlobalMenu.
 
